@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, FileText, Brain, Palette } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { TrendingUp, FileText, Brain } from 'lucide-react';
 
 export const Header = () => {
   return (
@@ -34,12 +33,6 @@ export const Header = () => {
           <Brain className="h-4 w-4 mr-2" />
           Analytics
         </Button>
-        <Link to="/demo">
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-            <Palette className="h-4 w-4 mr-2" />
-            Demo
-          </Button>
-        </Link>
         <Button className="bg-gradient-primary hover:opacity-90 shadow-glow">
           Get Started
         </Button>
