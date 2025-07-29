@@ -2,8 +2,10 @@
 import os
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 
-# Set your Hugging Face Hub API token here
-os.environ["HUGGINGFACEHUB_API_TOKEN"] = "[REMOVED_TOKEN]"
+# Load Hugging Face token from environment variable
+# Set HUGGINGFACEHUB_API_TOKEN in your environment or .env file
+if not os.getenv("HUGGINGFACEHUB_API_TOKEN"):
+    raise ValueError("HUGGINGFACEHUB_API_TOKEN environment variable is required")
 
 # Load the model and tokenizer
 model_name = "google/flan-t5-large"
