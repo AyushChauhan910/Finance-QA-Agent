@@ -1,6 +1,10 @@
 # core/rag_query_system.py
 import os
+from dotenv import load_dotenv
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Load Hugging Face token from environment variable
 # Set HUGGINGFACEHUB_API_TOKEN in your environment or .env file

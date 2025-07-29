@@ -1,5 +1,9 @@
 from fastapi import FastAPI
+from dotenv import load_dotenv
 from api import endpoints
+
+# Load environment variables from .env file
+load_dotenv()
 
 app = FastAPI()
 
