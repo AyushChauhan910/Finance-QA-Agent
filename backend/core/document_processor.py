@@ -22,14 +22,15 @@ def ingest_document(file_path: str) -> str:
 def clean_text(text: str) -> str:
     """Cleans the text by removing unnecessary characters and formatting."""
     text = text.lower()
-    text = re.sub(r"[^a-zA-Z0-9\s]", "", text)
+    # Preserve $, %, commas and dots to retain numeric context
+    text = re.sub(r"[^a-zA-Z0-9\s\$%,\.]", "", text)
     return text
 
 def chunk_document(text: str) -> list[str]:
     """Chunks the document into smaller pieces for processing."""
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1000,
-        chunk_overlap=200,
+        chunk_size=1500,
+        chunk_overlap=300,
         length_function=len
     )
     chunks = text_splitter.split_text(text)
