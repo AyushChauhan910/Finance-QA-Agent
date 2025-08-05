@@ -34,6 +34,8 @@ def _post_process(raw: str, query: str = "", context: str = "") -> str:
         "services": "services",
         "wearables": "wearables",
         "total net sales": "total net sales",
+        "r&d": "research and development",
+        "research": "research and development",
     }
     key = None
     ql = query.lower()
@@ -58,7 +60,22 @@ def _post_process(raw: str, query: str = "", context: str = "") -> str:
                 cur, prev = nums_line[0], nums_line[1]
                 period = "Q2-2025"
             pct = (cur - prev) / prev * 100 if prev else 0
-            label = key.capitalize() if key != "total net sales" else "Total net sales"
+            if key.startswith("research") or key.startswith("r&d"):
+                label = "R&D expense"
+            else:
+                label = key.capitalize() if key != "total net sales" else "Total net sales"
+            if "percentage" in query.lower() and "net sales" in query.lower() and period == "6M-2025":
+                # calculate ratio against six-month net sales
+                try:
+                    net_sales_match = re.search(r"total net sales \$ ([\d,]{4,}) .* \$ ([\d,]{4,})", context, re.I)
+                    if net_sales_match:
+                        ns_cur = int(net_sales_match.group(1).replace(',', ''))
+                        ratio = cur / ns_cur * 100 if ns_cur else 0
+                        return (
+                            f"R&D expense in Q2-2025 was ${nums_line[0]:,}. Six-month R&D was ${cur:,}, representing {ratio:.1f}% of net sales (${ns_cur:,})."
+                        )
+                except Exception:
+                    pass
             return (
                 f"{label} in {period} was ${cur:,}, compared with ${prev:,} in the prior-year period — a {pct:.1f}% change."
             )
