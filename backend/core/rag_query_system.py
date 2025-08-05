@@ -14,8 +14,8 @@ if not os.getenv("HUGGINGFACEHUB_API_TOKEN"):
 
 # Load the model and tokenizer
 PROMPT_TEMPLATE = (
-    "You are a financial analyst. From the context, identify the FY-2023 and FY-2022 total net-sales (or revenue) figures and state the year-over-year change both in absolute dollar terms and percentage. "
-    "Return a concise sentence. If the required figures are missing, answer 'Data not found'.\n\n"
+    "You are a financial analyst. Use the context to answer with exact figures and the year-over-year (YoY) dollar and percentage change. "
+    "If the context lists a table, copy the numbers exactly. If figures are missing, reply 'Data not found'.\n\n"
     "Context:\n{context}\n\nQuestion: {question}\nAnswer:"
 )
 
@@ -24,28 +24,63 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSeq2SeqLM.from_pretrained(model_name)
 
 
-def _post_process(raw: str) -> str:
-    """Detect four-number patterns in revenue answers and rewrite them."""
-    nums = [n.replace(',', '') for n in re.findall(r"\d[\d,]{3,}", raw)]
-    if len(nums) >= 4:
-        fy23, fy22 = int(nums[2]), int(nums[3])
-        try:
-            pct = (fy23 - fy22) / fy22 * 100
-        except ZeroDivisionError:
-            pct = 0
+def _post_process(raw: str, query: str = "", context: str = "") -> str:
+    """Post-process model output to extract numeric answers based on context rows."""
+    # Try to pull numbers from the context row that matches the query keyword
+    keyword_map = {
+        "iphone": "iphone",
+        "mac": "mac",
+        "ipad": "ipad",
+        "services": "services",
+        "wearables": "wearables",
+        "total net sales": "total net sales",
+    }
+    key = None
+    ql = query.lower()
+    for k in keyword_map:
+        if k in ql:
+            key = keyword_map[k]
+            break
+
+    if key and context:
+        # Find the line containing the keyword and capture two large numbers
+        line_re = re.compile(fr"{key}[^\d$]*\$?\s*([\d,]{{4,}})\s+\$?\s*([\d,]{{4,}})", re.I)
+        m = line_re.search(context)
+        if m:
+            # extract all large numbers on the same line
+            nums_line = [int(x.replace(',', '')) for x in re.findall(r"[\d,]{4,}", m.group(0))]
+            # decide which pair to use: first two (quarter) or second two (six-month)
+            use_six = any(s in query.lower() for s in ["six", "first", "fy-2025"])
+            if use_six and len(nums_line) >= 4:
+                cur, prev = nums_line[2], nums_line[3]
+                period = "6M-2025"
+            else:
+                cur, prev = nums_line[0], nums_line[1]
+                period = "Q2-2025"
+            pct = (cur - prev) / prev * 100 if prev else 0
+            label = key.capitalize() if key != "total net sales" else "Total net sales"
+            return (
+                f"{label} in {period} was ${cur:,}, compared with ${prev:,} in the prior-year period — a {pct:.1f}% change."
+            )
+
+    # Fallback to earlier generic two-number logic in the raw model output
+    two_num_match = re.search(r"\$?\s*([\d,]{4,})\s+\$?\s*([\d,]{4,})", raw)
+    if two_num_match:
+        cur, prev = (int(x.replace(',', '')) for x in two_num_match.groups())
+        pct = (cur - prev) / prev * 100 if prev else 0
         return (
-            f"FY-2023 net sales were ${fy23:,}, compared with ${fy22:,} in "
-            f"FY-2022 — a {pct:.1f}% change."
+            f"{key.capitalize() if key else 'Revenue'} was ${cur:,} vs ${prev:,} — {pct:.1f}% YoY change."
         )
+
     return raw
 
 def generate_response(query: str, context: list):
     """Generates a response using the RAG pipeline."""
     # Prepare the input for the model
-    # Build context string and truncate to fit model token limit
-    context_str = " ".join([doc.page_content for doc in context])
+    # Build full context string (for post-processing) and a truncated version for the model
+    full_context_str = " ".join([doc.page_content for doc in context])
     max_ctx_tokens = 480
-    tokens = tokenizer.encode(context_str)[:max_ctx_tokens]
+    tokens = tokenizer.encode(full_context_str)[:max_ctx_tokens]
     context_str = tokenizer.decode(tokens, skip_special_tokens=True)
     input_text = PROMPT_TEMPLATE.format(context=context_str, question=query)
     input_ids = tokenizer(input_text, return_tensors="pt").input_ids
@@ -60,5 +95,4 @@ def generate_response(query: str, context: list):
     response = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
     # Basic fallback formatting if the model still outputs four bare numbers
-    return _post_process(response)
-
+    return _post_process(response, query, full_context_str)

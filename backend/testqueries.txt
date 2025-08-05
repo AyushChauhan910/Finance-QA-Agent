@@ -1,0 +1,44 @@
+For a lean yet thorough smoke-test, focus on these eight questions—they hit every key statement and exercise retrieval, maths, ratios, and narrative:
+
+Total revenue YoY
+“What were total net sales in Q2-2025 and how did they change YoY?”
+iPhone performance
+“State iPhone revenue in Q2-2025 and the YoY change.”
+Services momentum
+“Give Services revenue for the first six months of FY-2025 and the YoY growth.”
+R&D spending ratio
+“How much was R&D expense in Q2-2025 and what percentage of net sales did it represent for the six-month period?”
+Inventory management
+“Report total inventories as of March 29 2025 and the change versus September 28 2024.”
+Capital structure
+“What was term-debt outstanding on March 29 2025 and how did it change from September 28 2024?”
+Deferred-revenue breakdown
+“Break down the $13.6 bn deferred revenue by recognition horizon (<1 yr, 1-2 yrs, 2-3 yrs, >3 yrs).”
+Narrative comprehension
+“Summarise the main foreign-currency impacts mentioned for Greater China in Q2-2025.”
+Passing these eight gives high confidence that all critical parts—P&L, segment table, balance sheet, deferred-revenue note, and MD&A narrative—are functioning end-to-end.
+
+Feedback submitted
+Me
+
+Give their answers also
+
+Revert
+Most-important test queries and their correct answers (based on the Q2-2025 Form 10-Q excerpt you ingested):
+
+Q: Total net sales in Q2-2025 and YoY change?
+A: $95.359 billion versus $90.753 billion in Q2-2024 — up $4.606 billion (+5 %).
+Q: iPhone revenue in Q2-2025 and YoY change?
+A: $46.841 billion versus $45.963 billion — up $0.878 billion (+1.9 %).
+Q: Services revenue for the first six months of FY-2025 and YoY growth?
+A: $52.985 billion versus $46.984 billion — up $6.001 billion (+12.8 %).
+Q: R&D expense in Q2-2025 and what % of net sales did it represent for the six-month period?
+A: $8.550 billion; six-month R&D was $16.818 billion, which is 7.7 % of net sales ($219.659 billion).
+Q: Total inventories as of 29 Mar 2025 and change vs 28 Sep 2024?
+A: $6.269 billion, down $1.017 billion (-14 %) from $7.286 billion.
+Q: Term debt outstanding on 29 Mar 2025 and change vs 28 Sep 2024?
+A: $92.2 billion, down $4.5 billion (-4.7 %) from $96.7 billion.
+Q: Breakdown of the $13.6 billion deferred revenue by recognition horizon?
+A: 66 % < 1 yr, 24 % 1–2 yrs, 9 % 2–3 yrs, 1 % > 3 yrs.
+Q: Main foreign-currency impacts mentioned for Greater China in Q2-2025?
+A: Management noted that renminbi weakness relative to the U.S. dollar had an unfavorable year-over-year impact on Greater China net sales during the quarter.
